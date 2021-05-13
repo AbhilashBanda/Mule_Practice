@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a6fbfa0e-b36e-45ef-a3fc-9ea5a248d010" basePath="mail" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="d3cf0053-976a-4a0e-94dd-1440959d613b" >
+		<email:smtp-connection host="smtp.gmail.com" port="587" user="abhilashbanda77@gmail.com" password="Ravi@9966" >
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<flow name="gmailFlow" doc:id="e8beb5f7-f05d-426e-8a25-75fe12a474af" >
+		<http:listener doc:name="Listener" doc:id="6360958a-36f9-455c-8b48-979f0c231c14" config-ref="HTTP_Listener_config" path="send"/>
+		<email:send doc:name="Send" doc:id="fb2df881-1564-417e-9cd9-b7892693d15e" config-ref="Email_SMTP" fromAddress="abhilashbanda77@gmail.com" subject="hi">
+			<email:to-addresses >
+				<email:to-address value="srujanadevika@gmail.com" />
+				<email:to-address value="nareshcummins216@gmail.com" />
+				<email:to-address value="akbarmd.mca@gmail.com" />
+			</email:to-addresses>
+			<email:body >
+				<email:content ><![CDATA[#['Hello!! How are you?']]]></email:content>
+			</email:body>
+		</email:send>
+		<set-payload value="#['sent successfully']" doc:name="Set Payload" doc:id="0b270536-5921-4f5b-8427-61de0cacb570" />
+	</flow>
+</mule>
