@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="productsoutput" format="excel">
+      <types:shape format="weave"><![CDATA[%dw 2.0
+
+type productsoutput = {|
+  products?: Array<{|    productID: Number,     name: String,     quantity: Number,     price: Number  |}>
+|}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#cc1c6b40-3531-480d-bca0-4ca246e24127">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="productsoutput"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

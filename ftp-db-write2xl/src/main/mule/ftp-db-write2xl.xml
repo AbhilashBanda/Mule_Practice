@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="97df00c5-93f0-4cb0-aaaf-fc3cf71d416a" basePath="db" >
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="80060bf4-0de0-463a-9b31-c77bcf1cec02" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root" database="abhi" />
+	</db:config>
+	<ftp:config name="FTP_Config" doc:name="FTP Config" doc:id="34a23174-01d2-493b-aefe-705e6cd9dc4e" >
+		<ftp:connection workingDir="empdir" host="localhost" username="ftpuser" password="ftpuser" />
+	</ftp:config>
+	<flow name="ftp-db-write2xlFlow" doc:id="bde43a18-890c-4e5d-9859-2b38826a5f9b" >
+		<http:listener doc:name="Listener" doc:id="2d42b9db-5d23-4510-910b-d12a47bcc46f" config-ref="HTTP_Listener_config" path="csv"/>
+		<db:select doc:name="Select" doc:id="31f2a91c-1a2a-4201-b326-4bcc0e6dafd7" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from products]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="cc1c6b40-3531-480d-bca0-4ca246e24127" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xlsx
+---
+{
+	products: payload map ( payload01 , indexOfPayload01 ) -> {
+		productID: payload01.productID,
+		name: payload01.name,
+		quantity: payload01.quantity,
+		price: payload01.price
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ftp:write doc:name="Write" doc:id="894f7921-5df3-4563-be9a-239a828d49d2" path="productsinfo.xlsx" config-ref="FTP_Config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="11cb21bd-98c6-489d-ab48-57b723abec2b" message="file is copied:#[payload]"/>
+	</flow>
+</mule>
