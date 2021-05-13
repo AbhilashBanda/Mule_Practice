@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="607f20bb-97d3-4911-abf3-c0a50ce3ed1a" basePath="insert" >
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="9764e0b7-d9c5-4840-b8f5-3820336fdb76" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root" database="abhi" />
+	</db:config>
+	<flow name="db_insertFlow" doc:id="f86757ee-42c9-46e1-a81f-8fc242279448" >
+		<http:listener doc:name="Listener" doc:id="6bb35c90-7aec-445d-bda8-0bfef3217ecd" config-ref="HTTP_Listener_config" path="db"/>
+		<db:insert doc:name="Insert" doc:id="add4b7b0-06c1-4e27-919d-b1b73bba3615" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into products vavlues(:productID,:name,:quantity,:price)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{productID:payload.productID,'name':payload.name,quantity:payload.quantity,price:payload.price}]]]></db:input-parameters>
+		</db:insert>
+	</flow>
+</mule>
