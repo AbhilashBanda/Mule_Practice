@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<file:config name="inbound" doc:name="File Config" doc:id="ab560ffd-5921-4c1a-a235-492b27206439" >
+		<file:connection workingDir="F:\in" />
+	</file:config>
+	<file:config name="outbound" doc:name="File Config" doc:id="f6445bb8-1956-4831-9c6f-8392231be864" >
+		<file:connection workingDir="F:\out\pdf" />
+	</file:config>
+	<file:config name="outbound" doc:name="File Config" doc:id="06cfea0c-48c3-4b45-ae57-289ca6c40ae7" >
+		<file:connection workingDir="F:\out\other" />
+	</file:config>
+	<file:config name="outbound" doc:name="File Config" doc:id="339dce0f-176b-428b-8953-a6c65ebe83e7" >
+		<file:connection workingDir="F:\out\other" />
+	</file:config>
+	<flow name="WriteFlow" doc:id="97ef4aa9-532f-47f7-9821-79c5af4a85bf" >
+		<file:listener doc:name="On New or Updated File" doc:id="ed7a75b5-6b4f-43bf-bc75-fc1918a255af" config-ref="inbound" directory="choice" autoDelete="true">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</file:listener>
+		<choice doc:name="Choice" doc:id="694cf681-7b8c-4b77-ba8f-9dd8c8142250" >
+			<when expression="#[endsWith(attributes.fileName, 'pdf')]">
+				<file:write doc:name="pdf" doc:id="7f0231dc-138b-48cb-aefd-8fa7c8fce980" config-ref="outbound" path="#[attributes.fileName]"/>
+			</when>
+			<when expression="#[endsWith(attributes.fileName,'txt')]">
+				<file:write doc:name="txt" doc:id="60a9ccbc-5ce8-44d1-ba94-d1fd611da3d1" config-ref="outbound" path="#[attributes.fileName]"/>
+			</when>
+			<otherwise >
+				<file:write doc:name="other" doc:id="dcc08243-3db2-40d8-a1cf-67ef3fa6dc10" config-ref="outbound" path="#[attributes.fileName]"/>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>
